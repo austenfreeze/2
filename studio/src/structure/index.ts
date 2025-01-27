@@ -1,5 +1,5 @@
-import {CogIcon} from '@sanity/icons'
-import type {StructureBuilder, StructureResolver} from 'sanity/structure'
+import { CogIcon } from '@sanity/icons'
+import type { StructureBuilder, StructureResolver } from 'sanity/structure'
 import pluralize from 'pluralize-esm'
 
 /**
@@ -14,14 +14,17 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
   S.list()
     .title('Website Content')
     .items([
+      // Only include the People, Posts, Pages, Thought Threads, and Settings tabs
       ...S.documentTypeListItems()
-        // Remove the "assist.instruction.context" and "settings" content  from the list of content types
-        .filter((listItem: any) => !DISABLED_TYPES.includes(listItem.getId()))
-        // Pluralize the title of each document type.  This is not required but just an option to consider.
-        .map((listItem) => {
-          return listItem.title(pluralize(listItem.getTitle() as string))
-        }),
-      // Settings Singleton in order to view/edit the one particular document for Settings.  Learn more about Singletons: https://www.sanity.io/docs/create-a-link-to-a-single-edit-page-in-your-main-document-type-list
+        .filter(
+          (listItem: any) =>
+            !DISABLED_TYPES.includes(listItem.getId()) &&
+            ['people', 'post', 'page', 'thoughtThread'].includes(listItem.getId())  // Filter specific types
+        )
+        .map((listItem) => listItem.title(pluralize(listItem.getTitle() as string))),
+
+
+      // Site Settings Singleton to manage global settings
       S.listItem()
         .title('Site Settings')
         .child(S.document().schemaType('settings').documentId('siteSettings'))

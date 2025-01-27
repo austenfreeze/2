@@ -1,33 +1,9 @@
-import { stegaClean } from "@sanity/client/stega";
-import { Image } from "next-sanity/image";
-
-import { urlForImage } from "@/sanity/lib/utils";
+import Image from 'next/image';
 
 interface CoverImageProps {
-  image: any;
-  priority?: boolean;
+  image: { src: string; alt: string }; // Adjust to match the shape of the `image` object
 }
 
-export default function CoverImage(props: CoverImageProps) {
-  const { image: source, priority } = props;
-  const image = source?.asset?._ref ? (
-    <Image
-      className="rounded-2xl shadow-md transition-shadow object-cover"
-      fill={true}
-      alt={stegaClean(source?.alt) || ""}
-      src={
-        urlForImage(source)
-          ?.height(720)
-          .width(1280)
-          .auto("format")
-          .url() as string
-      }
-      sizes="100vw"
-      priority={priority}
-    />
-  ) : (
-    <div className="bg-slate-50" style={{ paddingTop: "100%" }} />
-  );
-
-  return <div className="relative aspect-video">{image}</div>;
-}
+const CoverImage: React.FC<CoverImageProps> = ({ image }) => {
+  return <Image src={image.src} alt={image.alt} layout="responsive" width={1200} height={675} />;
+};

@@ -1,10 +1,30 @@
-import type { NextConfig } from "next";
+import { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
-  env: {
-    // Matches the behavior of `sanity dev` which sets styled-components to use the fastest way of inserting CSS rules in both dev and production. It's default behavior is to disable it in dev mode.
-    SC_DISABLE_SPEEDY: "false",
+const config: NextConfig = {
+  reactStrictMode: true,
+  webpack: (config) => {
+    // Optimization to improve performance for large apps
+    config.module.rules.push({
+      test: /\.(js|ts|jsx|tsx)$/,
+      exclude: /node_modules/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['next/babel'],
+        },
+      },
+    })
+    return config
   },
-};
+  env: {
+    SC_DISABLE_SPEEDY: 'false', // Ensures styled-components performance in production
+  },
+  experimental: {
+    // You can keep other experimental features here
+  },
+  images: {
+    unoptimized: true, // Ensure Next.js handles image optimization
+  },
+}
 
-export default nextConfig;
+module.exports = config
