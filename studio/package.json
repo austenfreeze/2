@@ -18,7 +18,9 @@
   "dependencies": {
     "@sanity/assist": "^3.0.8",
     "@sanity/icons": "^3.5.0",
+    "@sanity/portable-text-editor": "^3.48.1",
     "@sanity/vision": "^3.65.1",
+    "@selvklart/sanity-block-selector": "^4.0.4",
     "date-fns": "^3.6.0",
     "pluralize-esm": "^9.0.5",
     "react": "^18.3.1",
@@ -26,7 +28,8 @@
     "rxjs": "^7.8.1",
     "sanity": "^3.71.2",
     "sanity-plugin-asset-source-unsplash": "^3.0.1",
-    "styled-components": "^6.1.13"
+    "styled-components": "^6.1.13",
+    "vite": "^6.0.11"
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^4.0.0",

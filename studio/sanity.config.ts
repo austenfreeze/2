@@ -1,6 +1,7 @@
 // sanity.config.ts
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { defaultDocumentNode } from './src/structure/defaultDocumentNode';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './src/schemaTypes'; // Adjust path if necessary
 import { structure } from './src/structure'; // Adjust path if necessary
@@ -24,7 +25,7 @@ export default defineConfig({
   name: 'stenstudio',
   title: 'STENS STUDIO',
   plugins: [
-    structureTool({ structure }),
+    structureTool({ structure, defaultDocumentNode, }),
     presentationTool({
       previewUrl: {
         origin: SANITY_STUDIO_PREVIEW_URL,

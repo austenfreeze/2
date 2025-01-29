@@ -1,13 +1,7 @@
 import { defineQuery } from "next-sanity";
-import { sanityFetch } from '@/sanity/lib/live';
+import { sanityFetch } from "@/sanity/lib/live";
 
 export const settingsQuery = defineQuery(`*[_type == "settings"][0]`);
-
-export const getStaticProps = async () => {
-  const data = await sanityFetch({ query: getPageQuery }); // Use the actual query
-  return { props: { data } };
-};
-
 
 const postFields = /* groq */ `
   _id,
@@ -17,17 +11,30 @@ const postFields = /* groq */ `
   excerpt,
   coverImage,
   "date": coalesce(date, _updatedAt),
-  "author": author->{firstName, lastName, picture},
+  "categories": coalesce(
+    categories[]->{
+      _id,
+      slug,
+      title
+    }, 
+    []
+  ),
+  author->{
+    firstName,
+    lastName,
+    picture
+  },
+  publishedAt
 `;
 
 const linkFields = /* groq */ `
-  link {
-      ...,
-      _type == "link" => {
-        "page": page->slug.current,
-        "post": post->slug.current
-        }
-      }
+  markDefs[]{
+    ...,
+    _type == "link" => {
+      "page": page->slug.current,
+      "post": post->slug.current
+    }
+  }
 `;
 
 export const getPageQuery = defineQuery(`
@@ -41,52 +48,68 @@ export const getPageQuery = defineQuery(`
     "pageBuilder": pageBuilder[]{
       ...,
       _type == "callToAction" => {
-        ...,
-        // Other link fields go here
+        ... // Other link fields can be added here
       }
-    },
+    }
   }
 `);
 
-// Correct usage in fetchStaticProps
+// Static Props Fetcher
 export const fetchStaticProps = async ({ slug }: { slug: string }) => {
-  const query = getPageQuery; // Don't call the query here, just reference it
-  const data = await sanityFetch({ query, params: { slug } }); // Pass the slug as part of params
+  const data = await sanityFetch({ query: getPageQuery, params: { slug } });
   return data;
 };
 
-
+// Fetch all posts
 export const allPostsQuery = defineQuery(`
-  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {
+  *[_type == "post" && defined(slug.current)] | order(publishedAt desc, date desc, _updatedAt desc) [0...12] {
     ${postFields}
   }
 `);
 
+// Fetch more posts, excluding one (for single post pages)
 export const morePostsQuery = defineQuery(`
-  *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {
+  *[_type == "post" && _id != $skip && defined(slug.current)] 
+  | order(publishedAt desc, date desc, _updatedAt desc) [0...$limit] {
     ${postFields}
   }
 `);
 
+// Fetch a single post
 export const postQuery = defineQuery(`
-  *[_type == "post" && slug.current == $slug] [0] {
+  *[_type == "post" && slug.current == $slug][0] {
+    _id,
+    title,
+    body,
+    mainImage,
+    publishedAt,
+    "categories": coalesce(
+      categories[]->{
+        _id,
+        slug,
+        title
+      }, 
+      []
+    ),
+    author->{
+      name,
+      image
+    },
     content[]{
-    ...,
-    markDefs[]{
       ...,
       ${linkFields}
     }
-  },
-    ${postFields}
   }
 `);
 
+// Get all post slugs
 export const postPagesSlugs = defineQuery(`
   *[_type == "post" && defined(slug.current)]
-  {"slug": slug.current}
+  { "slug": slug.current }
 `);
 
+// Get all page slugs
 export const pagesSlugs = defineQuery(`
   *[_type == "page" && defined(slug.current)]
-  {"slug": slug.current}
+  { "slug": slug.current }
 `);
