@@ -505,7 +505,7 @@ export type SettingsQueryResult = {
   };
 } | null;
 // Variable: getPageQuery
-// Query: *[_type == 'page' && slug.current == $slug][0]{    _id,    _type,    name,    slug,    heading,    subheading,    "pageBuilder": pageBuilder[]{      ...,      _type == "callToAction" => {        ...,        // Other link fields go here      }    },  }
+// Query: *[_type == 'page' && slug.current == $slug][0]{    _id,    _type,    name,    slug,    heading,    subheading,    "pageBuilder": pageBuilder[]{      ...,      _type == "callToAction" => {        ... // Other link fields can be added here      }    }  }
 export type GetPageQueryResult = {
   _id: string;
   _type: "page";
@@ -560,7 +560,7 @@ export type GetPageQueryResult = {
   }> | null;
 } | null;
 // Variable: allPostsQuery
-// Query: *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  }
+// Query: *[_type == "post" && defined(slug.current)] | order(publishedAt desc, date desc, _updatedAt desc) [0...12] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "categories": coalesce(    categories[]->{      _id,      slug,      title    },     []  ),  author->{    firstName,    lastName,    picture  },  publishedAt  }
 export type AllPostsQueryResult = Array<{
   _id: string;
   status: "draft" | "published";
@@ -580,6 +580,7 @@ export type AllPostsQueryResult = Array<{
     _type: "image";
   };
   date: string;
+  categories: Array<never>;
   author: {
     firstName: string;
     lastName: string;
@@ -596,9 +597,10 @@ export type AllPostsQueryResult = Array<{
       _type: "image";
     };
   } | null;
+  publishedAt: null;
 }>;
 // Variable: morePostsQuery
-// Query: *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  }
+// Query: *[_type == "post" && _id != $skip && defined(slug.current)]   | order(publishedAt desc, date desc, _updatedAt desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "categories": coalesce(    categories[]->{      _id,      slug,      title    },     []  ),  author->{    firstName,    lastName,    picture  },  publishedAt  }
 export type MorePostsQueryResult = Array<{
   _id: string;
   status: "draft" | "published";
@@ -618,6 +620,7 @@ export type MorePostsQueryResult = Array<{
     _type: "image";
   };
   date: string;
+  categories: Array<never>;
   author: {
     firstName: string;
     lastName: string;
@@ -634,10 +637,21 @@ export type MorePostsQueryResult = Array<{
       _type: "image";
     };
   } | null;
+  publishedAt: null;
 }>;
 // Variable: postQuery
-// Query: *[_type == "post" && slug.current == $slug] [0] {    content[]{    ...,    markDefs[]{      ...,        link {      ...,      _type == "link" => {        "page": page->slug.current,        "post": post->slug.current        }      }    }  },      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  }
+// Query: *[_type == "post" && slug.current == $slug][0] {    _id,    title,    body,    mainImage,    publishedAt,    "categories": coalesce(      categories[]->{        _id,        slug,        title      },       []    ),    author->{      name,      image    },    content[]{      ...,        markDefs[]{    ...,    _type == "link" => {      "page": page->slug.current,      "post": post->slug.current    }  }    }  }
 export type PostQueryResult = {
+  _id: string;
+  title: string;
+  body: null;
+  mainImage: null;
+  publishedAt: null;
+  categories: Array<never>;
+  author: {
+    name: null;
+    image: null;
+  } | null;
   content: Array<{
     children?: Array<{
       marks?: Array<string>;
@@ -650,69 +664,24 @@ export type PostQueryResult = {
     markDefs: Array<{
       linkType?: "href" | "page" | "post";
       href?: string;
-      page?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "page";
-      };
-      post?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "post";
-      };
+      page: string | null;
+      post: string | null;
       openInNewTab?: boolean;
       _type: "link";
       _key: string;
-      link: null;
     }> | null;
     level?: number;
     _type: "block";
     _key: string;
   }> | null;
-  _id: string;
-  status: "draft" | "published";
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  coverImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-  };
-  date: string;
-  author: {
-    firstName: string;
-    lastName: string;
-    picture: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      alt?: string;
-      _type: "image";
-    };
-  } | null;
 } | null;
 // Variable: postPagesSlugs
-// Query: *[_type == "post" && defined(slug.current)]  {"slug": slug.current}
+// Query: *[_type == "post" && defined(slug.current)]  { "slug": slug.current }
 export type PostPagesSlugsResult = Array<{
   slug: string;
 }>;
 // Variable: pagesSlugs
-// Query: *[_type == "page" && defined(slug.current)]  {"slug": slug.current}
+// Query: *[_type == "page" && defined(slug.current)]  { "slug": slug.current }
 export type PagesSlugsResult = Array<{
   slug: string;
 }>;
@@ -722,11 +691,11 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     "*[_type == \"settings\"][0]": SettingsQueryResult;
-    "\n  *[_type == 'page' && slug.current == $slug][0]{\n    _id,\n    _type,\n    name,\n    slug,\n    heading,\n    subheading,\n    \"pageBuilder\": pageBuilder[]{\n      ...,\n      _type == \"callToAction\" => {\n        ...,\n        // Other link fields go here\n      }\n    },\n  }\n": GetPageQueryResult;
-    "\n  *[_type == \"post\" && defined(slug.current)] | order(date desc, _updatedAt desc) {\n    \n  _id,\n  \"status\": select(_originalId in path(\"drafts.**\") => \"draft\", \"published\"),\n  \"title\": coalesce(title, \"Untitled\"),\n  \"slug\": slug.current,\n  excerpt,\n  coverImage,\n  \"date\": coalesce(date, _updatedAt),\n  \"author\": author->{firstName, lastName, picture},\n\n  }\n": AllPostsQueryResult;
-    "\n  *[_type == \"post\" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {\n    \n  _id,\n  \"status\": select(_originalId in path(\"drafts.**\") => \"draft\", \"published\"),\n  \"title\": coalesce(title, \"Untitled\"),\n  \"slug\": slug.current,\n  excerpt,\n  coverImage,\n  \"date\": coalesce(date, _updatedAt),\n  \"author\": author->{firstName, lastName, picture},\n\n  }\n": MorePostsQueryResult;
-    "\n  *[_type == \"post\" && slug.current == $slug] [0] {\n    content[]{\n    ...,\n    markDefs[]{\n      ...,\n      \n  link {\n      ...,\n      _type == \"link\" => {\n        \"page\": page->slug.current,\n        \"post\": post->slug.current\n        }\n      }\n\n    }\n  },\n    \n  _id,\n  \"status\": select(_originalId in path(\"drafts.**\") => \"draft\", \"published\"),\n  \"title\": coalesce(title, \"Untitled\"),\n  \"slug\": slug.current,\n  excerpt,\n  coverImage,\n  \"date\": coalesce(date, _updatedAt),\n  \"author\": author->{firstName, lastName, picture},\n\n  }\n": PostQueryResult;
-    "\n  *[_type == \"post\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": PostPagesSlugsResult;
-    "\n  *[_type == \"page\" && defined(slug.current)]\n  {\"slug\": slug.current}\n": PagesSlugsResult;
+    "\n  *[_type == 'page' && slug.current == $slug][0]{\n    _id,\n    _type,\n    name,\n    slug,\n    heading,\n    subheading,\n    \"pageBuilder\": pageBuilder[]{\n      ...,\n      _type == \"callToAction\" => {\n        ... // Other link fields can be added here\n      }\n    }\n  }\n": GetPageQueryResult;
+    "\n  *[_type == \"post\" && defined(slug.current)] | order(publishedAt desc, date desc, _updatedAt desc) [0...12] {\n    \n  _id,\n  \"status\": select(_originalId in path(\"drafts.**\") => \"draft\", \"published\"),\n  \"title\": coalesce(title, \"Untitled\"),\n  \"slug\": slug.current,\n  excerpt,\n  coverImage,\n  \"date\": coalesce(date, _updatedAt),\n  \"categories\": coalesce(\n    categories[]->{\n      _id,\n      slug,\n      title\n    }, \n    []\n  ),\n  author->{\n    firstName,\n    lastName,\n    picture\n  },\n  publishedAt\n\n  }\n": AllPostsQueryResult;
+    "\n  *[_type == \"post\" && _id != $skip && defined(slug.current)] \n  | order(publishedAt desc, date desc, _updatedAt desc) [0...$limit] {\n    \n  _id,\n  \"status\": select(_originalId in path(\"drafts.**\") => \"draft\", \"published\"),\n  \"title\": coalesce(title, \"Untitled\"),\n  \"slug\": slug.current,\n  excerpt,\n  coverImage,\n  \"date\": coalesce(date, _updatedAt),\n  \"categories\": coalesce(\n    categories[]->{\n      _id,\n      slug,\n      title\n    }, \n    []\n  ),\n  author->{\n    firstName,\n    lastName,\n    picture\n  },\n  publishedAt\n\n  }\n": MorePostsQueryResult;
+    "\n  *[_type == \"post\" && slug.current == $slug][0] {\n    _id,\n    title,\n    body,\n    mainImage,\n    publishedAt,\n    \"categories\": coalesce(\n      categories[]->{\n        _id,\n        slug,\n        title\n      }, \n      []\n    ),\n    author->{\n      name,\n      image\n    },\n    content[]{\n      ...,\n      \n  markDefs[]{\n    ...,\n    _type == \"link\" => {\n      \"page\": page->slug.current,\n      \"post\": post->slug.current\n    }\n  }\n\n    }\n  }\n": PostQueryResult;
+    "\n  *[_type == \"post\" && defined(slug.current)]\n  { \"slug\": slug.current }\n": PostPagesSlugsResult;
+    "\n  *[_type == \"page\" && defined(slug.current)]\n  { \"slug\": slug.current }\n": PagesSlugsResult;
   }
 }

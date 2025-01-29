@@ -96,10 +96,10 @@ export const blockContent = defineType({
       type: 'image1', // Ensure the 'image1' schema type exists elsewhere
     },
     defineField({
-      name: 'authorReference',
-      title: 'Author',
+      name: 'personReference',
+      title: 'person',
       type: 'reference',
-      to: [{ type: 'author' }],
+      to: [{ type: 'person' }],
     }),
   ],
 });

@@ -10,7 +10,7 @@ export const client = createClient({
   useCdn: true,
   perspective: "published",
   stega: {
-    studioUrl,
+    studioUrl: '/studio',
     filter: (props) => {
       if (props.sourcePath.at(-1) === "title") {
         return true;

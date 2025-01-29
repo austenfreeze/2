@@ -16,10 +16,7 @@ export default function DraftModeToast() {
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    if (isPresentationTool === false) {
-      /**
-       * We delay the toast in case we're inside Presentation Tool
-       */
+    if (isPresentationTool !== undefined && isPresentationTool === false) {
       const toastId = toast("Draft Mode Enabled", {
         description:
           env === "live"
@@ -36,12 +33,13 @@ export default function DraftModeToast() {
           },
         },
       });
+  
       return () => {
         toast.dismiss(toastId);
       };
     }
   }, [env, router, isPresentationTool]);
-
+  
   useEffect(() => {
     if (pending) {
       const toastId = toast.loading("Disabling draft mode...");

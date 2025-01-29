@@ -9,14 +9,14 @@ import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { presentationTool, defineDocuments, defineLocations, type DocumentLocation } from 'sanity/presentation';
 import { assist } from '@sanity/assist';
 
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID';
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'wzeu4pbz';
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production';
-const SANITY_STUDIO_PREVIEW_URL = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3000';
 
 const homeLocation = {
   title: 'Home',
   href: '/',
 } satisfies DocumentLocation;
+
 
 export default defineConfig({
   basePath: '/studio',
@@ -28,8 +28,11 @@ export default defineConfig({
     structureTool({ structure, defaultDocumentNode, }),
     presentationTool({
       previewUrl: {
-        origin: SANITY_STUDIO_PREVIEW_URL,
-        previewMode: { enable: '/api/draft-mode/enable' },
+        origin: process.env.SANITY_STUDIO_PREVIEW_ORIGIN,
+        preview: "/",
+        previewMode: {
+          enable: "/api/draft-mode/enable",
+        },
       },
       resolve: {
         mainDocuments: defineDocuments([

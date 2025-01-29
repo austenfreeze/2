@@ -16,11 +16,12 @@ import reactionObject from './documents/reactionObject'
 import reaction from './documents/reaction'
 import image1 from './objects/image1'
 import imageDocument from './documents/imageDocument'
+import imageFolder from './documents/imageFolder'
 
 
 // Export an array of all the schema types
 export const schemaTypes = [
   settings, // Singletons
   page, post, person, thought, thoughtThread, profile, postContent, comment, reaction, reactionArray, reactionObject, // Documents
-  blockContent, infoSection, callToAction, link, image1, imageDocument, // Objects
+  blockContent, infoSection, callToAction, link, image1, imageDocument, imageFolder, // Objects
 ]
